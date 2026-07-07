@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    scrollbar-color: theme('colors.neutral.400') transparent;
+    scrollbar-width: thin;
+  }
+
+  *:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 font-sans transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-neutral-900 text-neutral-50;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-400 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-500;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-250 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus-visible:outline-primary-500 active:bg-primary-700;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary-500 text-white hover:bg-secondary-600 focus-visible:outline-secondary-500 active:bg-secondary-700;
+  }
+
+  .btn-outline {
+    @apply btn border border-neutral-300 bg-transparent text-neutral-700 hover:bg-neutral-100 focus-visible:outline-primary-500 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800;
+  }
+
+  .card {
+    @apply rounded-xl bg-white shadow-card p-6 transition-shadow duration-300 hover:shadow-soft dark:bg-neutral-800;
+  }
+
+  .input {
+    @apply block w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 transition-colors duration-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none disabled:bg-neutral-100 disabled:cursor-not-allowed dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500 dark:focus:border-primary-400;
+  }
+}
+
+@layer utilities {
+  .transition-base {
+    @apply transition-all duration-250 ease-in-out;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
