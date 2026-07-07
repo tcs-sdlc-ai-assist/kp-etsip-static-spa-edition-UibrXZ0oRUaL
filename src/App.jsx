@@ -53,7 +53,7 @@ const markSSOShown = () => {
 const App = () => {
   const [booting, setBooting] = useState(true);
   const [bootError, setBootError] = useState(null);
-  const [showSplash, setShowSplash] = useState(() => !hasSSOBeenShown());
+  const [showSplash, setShowSplash] = useState(true);
 
   /**
    * Runs the application boot sequence:
@@ -195,7 +195,7 @@ const App = () => {
     return (
       <SSOSplash
         onComplete={handleSSOComplete}
-        autoDismissMs={3000}
+        autoDismissMs={0}
       />
     );
   }

@@ -122,8 +122,10 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
 
   // Auto-dismiss after delay if enabled
   useEffect(() => {
+    let autoDismissTimer = null;
+
     if (effectiveAutoDismiss > 0 && !authenticating && !dismissed) {
-      timerRef.current = setTimeout(() => {
+      autoDismissTimer = setTimeout(() => {
         if (!completedRef.current) {
           handleSignIn();
         }
@@ -131,13 +133,8 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
     }
 
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-      if (progressRef.current) {
-        clearInterval(progressRef.current);
-        progressRef.current = null;
+      if (autoDismissTimer) {
+        clearTimeout(autoDismissTimer);
       }
     };
   }, [effectiveAutoDismiss, authenticating, dismissed, handleSignIn]);
@@ -238,15 +235,15 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
           {/* Divider */}
           <div className="my-6 border-t border-white/10" aria-hidden="true" />
 
-          {/* Simulated SSO form */}
+          {/* Simulated login form */}
           <div className="space-y-4">
-            {/* Organization field (read-only, simulated) */}
+            {/* Username field (pre-filled with mock credentials) */}
             <div>
               <label
-                htmlFor="sso-org"
+                htmlFor="sso-username"
                 className="block text-xs font-medium text-white/60"
               >
-                Organization
+                Username / Email
               </label>
               <div className="relative mt-1">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -259,29 +256,29 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
                   >
                     <path
                       fillRule="evenodd"
-                      d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                       clipRule="evenodd"
                     />
                   </svg>
                 </div>
                 <input
-                  id="sso-org"
+                  id="sso-username"
                   type="text"
-                  value="Kaiser Permanente"
-                  readOnly
+                  defaultValue="admin@kp-etsip.com"
                   className="block w-full rounded-lg border border-white/20 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-white/40 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/40"
-                  aria-label="Organization"
+                  aria-label="Username or email"
+                  autoComplete="username"
                 />
               </div>
             </div>
 
-            {/* Identity Provider field (read-only, simulated) */}
+            {/* Password field (pre-filled with mock credentials) */}
             <div>
               <label
-                htmlFor="sso-idp"
+                htmlFor="sso-password"
                 className="block text-xs font-medium text-white/60"
               >
-                Identity Provider
+                Password
               </label>
               <div className="relative mt-1">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -300,14 +297,20 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
                   </svg>
                 </div>
                 <input
-                  id="sso-idp"
-                  type="text"
-                  value="Azure AD (SAML 2.0)"
-                  readOnly
+                  id="sso-password"
+                  type="password"
+                  defaultValue="Demo@1234"
                   className="block w-full rounded-lg border border-white/20 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder-white/40 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/40"
-                  aria-label="Identity Provider"
+                  aria-label="Password"
+                  autoComplete="current-password"
                 />
               </div>
+            </div>
+
+            {/* Mock credentials hint */}
+            <div className="rounded-lg bg-white/5 px-3 py-2 text-2xs text-white/50">
+              <span className="font-semibold text-white/70">Demo Credentials:</span>{' '}
+              admin@kp-etsip.com / Demo@1234
             </div>
 
             {/* Sign In button */}
@@ -317,7 +320,7 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
               onKeyDown={handleSignInKeyDown}
               disabled={authenticating}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-semibold text-primary-900 shadow-soft transition-all duration-200 hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-70 disabled:cursor-not-allowed"
-              aria-label={authenticating ? 'Authenticating...' : 'Sign in with SSO'}
+              aria-label={authenticating ? 'Authenticating...' : 'Sign In'}
             >
               {authenticating ? (
                 <>
@@ -328,22 +331,7 @@ const SSOSplash = ({ onComplete, autoDismissMs, className }) => {
                   <span>Authenticating...</span>
                 </>
               ) : (
-                <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>Sign in with SSO</span>
-                </>
+                <span>Sign In</span>
               )}
             </button>
 

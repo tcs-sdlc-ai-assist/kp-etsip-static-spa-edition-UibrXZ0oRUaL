@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePersona } from '../contexts/PersonaContext';
 import useEntityList from '../hooks/useEntityList';
 import DataTable from '../components/common/DataTable';
@@ -687,6 +687,7 @@ const buildCreateFormFields = (entityType) => {
 const EntityListPage = () => {
   const { entityType: routeEntityType } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { persona, canView, canCreate: personaCanCreate, canDelete: personaCanDelete } = usePersona();
 
   // Resolve entity type from route
@@ -695,13 +696,13 @@ const EntityListPage = () => {
     if (routeEntityType) {
       return resolveEntityType(routeEntityType);
     }
-    // Fall back to current path
-    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    // Fall back to current path (using location.pathname for reactivity)
+    const pathSegments = location.pathname.split('/').filter(Boolean);
     if (pathSegments.length > 0) {
       return resolveEntityType(pathSegments[0]);
     }
     return null;
-  }, [routeEntityType]);
+  }, [routeEntityType, location.pathname]);
 
   const schema = useMemo(() => {
     if (!entityType) {
