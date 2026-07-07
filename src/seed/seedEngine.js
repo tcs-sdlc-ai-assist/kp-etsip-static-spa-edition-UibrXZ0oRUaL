@@ -1042,6 +1042,71 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
     }
     counts.AUDIT_LOG = auditLogs.length;
 
+    // ---- TEST DATA SETS ----
+    const testData = [];
+    const dataTypes = ['Customer PII', 'Financial Transactions', 'Healthcare Records', 'Product Catalog', 'User Authentication', 'Reference Data', 'Clickstream Logs', 'Inventory Metrics'];
+    const sourceSystems = ['Salesforce CRM', 'SAP ERP', 'Epic EHR', 'Oracle Commerce', 'Active Directory', 'EDW Snowflake', 'Adobe Analytics', 'WMS Legacy'];
+    const sensitivities = ['Confidential', 'Restricted', 'Internal', 'Public'];
+    const provisioningStatuses = ['available', 'pending', 'provisioning', 'expired', 'retired'];
+    const dataSetNames = [
+      'Gold Customer Profile Dataset',
+      'EU Transaction Ledger 2026',
+      'HIPAA Compliant Patient Cohort',
+      'Global Product SKUs Catalog',
+      'OAuth Credentials Mock Pool',
+      'Zip Codes and Geo Reference',
+      'Q2 Web traffic clickstream',
+      'North America Inventory Feed',
+      'Premium Subscriptions Cohort',
+      'Legacy Billing History',
+      'Beta Testers Identity Pool',
+      'IoT Sensor Stream Mock',
+      'Marketing Campaign Leads',
+      'Payroll Batch Run Test',
+      'Claims Assessment Feed'
+    ];
+
+    const numTestData = Math.max(5, Math.round(15 * scale));
+
+    for (let i = 0; i < numTestData; i++) {
+      const id = `${ID_PREFIXES.TEST_DATA}${String(i + 1).padStart(3, '0')}`;
+      const app = applications[i % applications.length];
+      const env = environments[i % environments.length];
+      const owner = rng.pick(users);
+      const isSynthetic = rng.nextFloat() > 0.4;
+      const sensitivity = rng.pick(sensitivities);
+      const masking = sensitivity === 'Public' ? 'not_applicable' : (isSynthetic ? 'not_applicable' : rng.pick(['fully_masked', 'partially_masked']));
+      const now = generateDatetime(rng, -rng.nextInt(10, 180));
+      
+      testData.push({
+        id,
+        name: dataSetNames[i % dataSetNames.length],
+        applicationId: app.id,
+        applicationName: app.name,
+        portfolioId: app.portfolioId,
+        environmentId: env.id,
+        environmentName: env.name,
+        dataType: rng.pick(dataTypes),
+        sourceSystem: rng.pick(sourceSystems),
+        sensitivityClassification: sensitivity,
+        maskingStatus: masking,
+        syntheticIndicator: isSynthetic,
+        refreshDate: generateDateString(-rng.nextInt(1, 30)),
+        expirationDate: generateDateString(rng.nextInt(30, 180)),
+        owner: owner.displayName,
+        ownerId: owner.id,
+        usageHistory: rng.nextInt(5, 120),
+        linkedTestSuites: rng.nextInt(1, 8),
+        provisioningStatus: rng.pick(provisioningStatuses),
+        createdAt: now,
+        updatedAt: now,
+        createdBy: owner.id,
+        updatedBy: owner.id,
+        version: 1
+      });
+    }
+    counts.TEST_DATA = testData.length;
+
     // ---- PERSIST TO LOCALSTORAGE ----
     const storageMap = [
       [STORAGE_KEYS.ROLES, roles],
@@ -1068,6 +1133,7 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
       [STORAGE_KEYS.DEMO_SCENARIOS, demoScenarios],
       [STORAGE_KEYS.PDE_CONFIGS, pdeConfigs],
       [STORAGE_KEYS.AUDIT_LOGS, auditLogs],
+      [STORAGE_KEYS.TEST_DATA, testData],
     ];
 
     for (const [key, data] of storageMap) {
@@ -1103,6 +1169,7 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
       [ID_PREFIXES.DEMO_SCENARIO, demoScenarios.length],
       [ID_PREFIXES.PDE_CONFIG, pdeConfigs.length],
       [ID_PREFIXES.AUDIT_LOG, auditLogs.length],
+      [ID_PREFIXES.TEST_DATA, testData.length],
     ];
 
     for (const [prefix, count] of counterMap) {

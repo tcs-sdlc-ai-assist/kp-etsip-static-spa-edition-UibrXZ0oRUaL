@@ -9,6 +9,11 @@ import AdministrationPage from './pages/AdministrationPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import SchedulerPage from './pages/SchedulerPage';
+import SecurityPage from './pages/SecurityPage';
+import AccessibilityPage from './pages/AccessibilityPage';
+import PerformancePage from './pages/PerformancePage';
+import TestDataPage from './pages/TestDataPage';
+import ReportsPage from './pages/ReportsPage';
 import PermissionDenied from './components/common/PermissionDenied';
 import EmptyState from './components/common/EmptyState';
 
@@ -233,7 +238,7 @@ const router = createBrowserRouter([
       // Reports
       {
         path: 'reports',
-        element: <EntityListPage />,
+        element: <ReportsPage />,
       },
 
       // AI Insights
@@ -337,25 +342,25 @@ const router = createBrowserRouter([
       // Security
       {
         path: 'security',
-        element: <EntityListPage />,
+        element: <SecurityPage />,
       },
 
       // Accessibility
       {
         path: 'accessibility',
-        element: <EntityListPage />,
+        element: <AccessibilityPage />,
       },
 
       // Performance
       {
         path: 'performance',
-        element: <EntityListPage />,
+        element: <PerformancePage />,
       },
 
       // Test Data
       {
         path: 'test-data',
-        element: <EntityListPage />,
+        element: <TestDataPage />,
       },
 
       // Releases

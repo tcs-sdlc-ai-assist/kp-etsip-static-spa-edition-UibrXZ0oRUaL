@@ -2427,6 +2427,150 @@ export const ENTITY_SCHEMAS = {
       },
     ],
   },
+
+  TEST_DATA: {
+    entityType: 'TEST_DATA',
+    idPrefix: ID_PREFIXES.TEST_DATA,
+    displayName: ENTITY_NAMES.TEST_DATA,
+    pluralName: 'Test Data Sets',
+    fields: {
+      ...COMMON_FIELDS,
+      name: field(FIELD_TYPES.STRING, {
+        required: true,
+        minLength: 2,
+        maxLength: 300,
+        indexed: true,
+        description: 'Dataset name',
+      }),
+      applicationId: field(FIELD_TYPES.FOREIGN_KEY, {
+        required: true,
+        foreignKey: 'APPLICATION',
+        onDelete: REF_ACTIONS.CASCADE,
+        indexed: true,
+        description: 'Associated application',
+      }),
+      applicationName: field(FIELD_TYPES.STRING, {
+        required: false,
+        maxLength: 200,
+        description: 'Application display name',
+      }),
+      portfolioId: field(FIELD_TYPES.FOREIGN_KEY, {
+        required: false,
+        foreignKey: 'PORTFOLIO',
+        onDelete: REF_ACTIONS.CASCADE,
+        indexed: true,
+        description: 'Associated portfolio',
+      }),
+      environmentId: field(FIELD_TYPES.FOREIGN_KEY, {
+        required: true,
+        foreignKey: 'ENVIRONMENT',
+        onDelete: REF_ACTIONS.CASCADE,
+        indexed: true,
+        description: 'Associated environment',
+      }),
+      environmentName: field(FIELD_TYPES.STRING, {
+        required: false,
+        maxLength: 200,
+        description: 'Environment display name',
+      }),
+      dataType: field(FIELD_TYPES.STRING, {
+        required: true,
+        maxLength: 100,
+        description: 'Data type classification',
+      }),
+      sourceSystem: field(FIELD_TYPES.STRING, {
+        required: true,
+        maxLength: 100,
+        description: 'Source system',
+      }),
+      sensitivityClassification: field(FIELD_TYPES.ENUM, {
+        required: true,
+        enumValues: ['Confidential', 'Restricted', 'Internal', 'Public'],
+        defaultValue: 'Internal',
+        indexed: true,
+        description: 'Sensitivity classification',
+      }),
+      maskingStatus: field(FIELD_TYPES.ENUM, {
+        required: true,
+        enumValues: ['fully_masked', 'partially_masked', 'unmasked', 'not_applicable'],
+        defaultValue: 'unmasked',
+        description: 'Masking status',
+      }),
+      syntheticIndicator: field(FIELD_TYPES.BOOLEAN, {
+        required: true,
+        defaultValue: false,
+        description: 'Whether it is synthetic data',
+      }),
+      refreshDate: field(FIELD_TYPES.DATE, {
+        required: false,
+        description: 'Last refresh date',
+      }),
+      expirationDate: field(FIELD_TYPES.DATE, {
+        required: false,
+        description: 'Expiration date',
+      }),
+      owner: field(FIELD_TYPES.STRING, {
+        required: false,
+        maxLength: 200,
+        description: 'Owner name',
+      }),
+      ownerId: field(FIELD_TYPES.FOREIGN_KEY, {
+        required: false,
+        foreignKey: 'USER',
+        onDelete: REF_ACTIONS.SET_NULL,
+        description: 'Owner user ID',
+      }),
+      usageHistory: field(FIELD_TYPES.INTEGER, {
+        required: false,
+        defaultValue: 0,
+        min: 0,
+        description: 'Number of times used',
+      }),
+      linkedTestSuites: field(FIELD_TYPES.INTEGER, {
+        required: false,
+        defaultValue: 0,
+        min: 0,
+        description: 'Number of linked test suites',
+      }),
+      provisioningStatus: field(FIELD_TYPES.ENUM, {
+        required: true,
+        enumValues: ['available', 'pending', 'provisioning', 'expired', 'retired'],
+        defaultValue: 'available',
+        indexed: true,
+        description: 'Provisioning status',
+      }),
+    },
+    requiredFields: ['id', 'name', 'applicationId', 'environmentId', 'dataType', 'sourceSystem', 'sensitivityClassification', 'maskingStatus', 'syntheticIndicator', 'provisioningStatus', 'createdAt', 'updatedAt'],
+    searchableFields: ['name', 'dataType', 'sourceSystem', 'sensitivityClassification', 'maskingStatus', 'provisioningStatus', 'applicationName', 'owner'],
+    defaultSortField: 'name',
+    defaultSortDirection: 'asc',
+    foreignKeys: [
+      {
+        field: 'applicationId',
+        targetEntity: 'APPLICATION',
+        targetField: 'id',
+        onDelete: REF_ACTIONS.CASCADE,
+      },
+      {
+        field: 'portfolioId',
+        targetEntity: 'PORTFOLIO',
+        targetField: 'id',
+        onDelete: REF_ACTIONS.CASCADE,
+      },
+      {
+        field: 'environmentId',
+        targetEntity: 'ENVIRONMENT',
+        targetField: 'id',
+        onDelete: REF_ACTIONS.CASCADE,
+      },
+      {
+        field: 'ownerId',
+        targetEntity: 'USER',
+        targetField: 'id',
+        onDelete: REF_ACTIONS.SET_NULL,
+      },
+    ],
+  },
 };
 
 /**

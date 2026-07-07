@@ -17,7 +17,7 @@ const ROUTE_TO_ENTITY_TYPE = {
   portfolios: 'PORTFOLIO',
   applications: 'APPLICATION',
   'technology-standards': 'TECH_STANDARD',
-  'tech-radar': 'TECH_STANDARD',
+  'tech-radar': 'TECH_ENTRY',
   'tech-debt': 'TECH_DEBT',
   'quality-gates': 'QUALITY_GATE',
   governance: 'GOVERNANCE_RECORD',
