@@ -115,6 +115,15 @@ const TopBar = () => {
     [handleSelectPersona]
   );
 
+  const handleLogout = useCallback(() => {
+    try {
+      sessionStorage.removeItem('kp_etsip_sso_shown');
+    } catch (err) {
+      console.error('Failed to clear session', err);
+    }
+    window.location.reload();
+  }, []);
+
   const filteredPersonas = allPersonas.filter((p) => {
     if (searchTerm.trim() === '') {
       return true;
@@ -441,6 +450,29 @@ const TopBar = () => {
             </p>
           </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="btn-outline flex h-9 w-9 items-center justify-center rounded-lg p-0 text-red-500 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/20 dark:hover:text-red-300"
+          aria-label="Logout"
+          title="Logout"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
       </div>
     </header>
   );
