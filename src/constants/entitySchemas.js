@@ -730,6 +730,80 @@ export const ENTITY_SCHEMAS = {
     ],
   },
 
+  RELEASE: {
+    entityType: 'RELEASE',
+    idPrefix: ID_PREFIXES.RELEASE,
+    displayName: ENTITY_NAMES.RELEASE,
+    pluralName: 'Releases',
+    fields: {
+      ...COMMON_FIELDS,
+      name: field(FIELD_TYPES.STRING, {
+        required: true,
+        minLength: 1,
+        maxLength: 300,
+        indexed: true,
+        description: 'Release name',
+      }),
+      version: field(FIELD_TYPES.STRING, {
+        required: true,
+        minLength: 1,
+        maxLength: 100,
+        description: 'Release version',
+      }),
+      applicationId: field(FIELD_TYPES.FOREIGN_KEY, {
+        required: true,
+        foreignKey: 'APPLICATION',
+        onDelete: REF_ACTIONS.CASCADE,
+        indexed: true,
+        description: 'Associated application',
+      }),
+      releaseDate: field(FIELD_TYPES.DATE, {
+        required: true,
+        description: 'Planned release date',
+      }),
+      status: field(FIELD_TYPES.ENUM, {
+        required: true,
+        enumValues: ['planned', 'in_progress', 'completed', 'cancelled'],
+        defaultValue: 'planned',
+        indexed: true,
+        description: 'Release status',
+      }),
+      riskLevel: field(FIELD_TYPES.ENUM, {
+        required: true,
+        enumValues: ['low', 'medium', 'high', 'critical'],
+        defaultValue: 'low',
+        description: 'Release risk assessment',
+      }),
+      branchName: field(FIELD_TYPES.STRING, {
+        required: false,
+        maxLength: 300,
+        description: 'Git branch name',
+      }),
+      commitHash: field(FIELD_TYPES.STRING, {
+        required: false,
+        maxLength: 40,
+        description: 'Git commit hash',
+      }),
+      description: field(FIELD_TYPES.TEXT, {
+        required: false,
+        maxLength: 2000,
+        description: 'Release description/notes',
+      }),
+    },
+    requiredFields: ['id', 'name', 'version', 'applicationId', 'releaseDate', 'status', 'createdAt', 'updatedAt'],
+    searchableFields: ['name', 'version', 'status', 'riskLevel', 'branchName'],
+    defaultSortField: 'releaseDate',
+    defaultSortDirection: 'desc',
+    foreignKeys: [
+      {
+        field: 'applicationId',
+        targetEntity: 'APPLICATION',
+        targetField: 'id',
+        onDelete: REF_ACTIONS.CASCADE,
+      },
+    ],
+  },
+
   DEFINITION: {
     entityType: 'DEFINITION',
     idPrefix: ID_PREFIXES.DEFINITION,

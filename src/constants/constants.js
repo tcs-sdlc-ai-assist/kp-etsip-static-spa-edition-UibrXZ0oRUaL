@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   AUDIT_LOGS: 'kp_etsip_audit_logs',
   USE_CASES: 'kp_etsip_use_cases',
   TEST_DATA: 'kp_etsip_test_data',
+  RELEASES: 'kp_etsip_releases',
   SCHEMA_VERSION: 'kp_etsip_schema_version',
   THEME: 'kp_etsip_theme',
   SEED_SIZE: 'kp_etsip_seed_size',
@@ -79,6 +80,7 @@ export const ID_PREFIXES = {
   AUDIT_LOG: 'AUD-',
   USE_CASE: 'USE-',
   TEST_DATA: 'TDS-',
+  RELEASE: 'RL-',
 };
 
 export const ENTITY_NAMES = {
@@ -107,6 +109,7 @@ export const ENTITY_NAMES = {
   AUDIT_LOG: 'Audit Log',
   USE_CASE: 'Use Case',
   TEST_DATA: 'Test Data Set',
+  RELEASE: 'Release',
 };
 
 export const EXPORT_FORMATS = {

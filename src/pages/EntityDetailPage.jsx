@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePersona } from '../contexts/PersonaContext';
-import { read, update, remove, getDeleteImpact, list } from '../services/entityRepository';
+import { read, update, remove, getDeleteImpact, list, getAll } from '../services/entityRepository';
 import { getEntitySchema, getEnumFields, getForeignKeys, getReferencingEntities } from '../constants/entitySchemas';
 import { ENTITY_NAMES } from '../constants/constants';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -30,6 +30,7 @@ const ROUTE_TO_ENTITY_TYPE = {
   waivers: 'WAIVER',
   environments: 'ENVIRONMENT',
   integrations: 'INTEGRATION',
+  releases: 'RELEASE',
   evidence: 'EVIDENCE',
   users: 'USER',
   roles: 'ROLE',
@@ -622,10 +623,7 @@ const EntityDetailPage = () => {
       if (fieldDef.type === 'json' || fieldDef.type === 'object' || fieldDef.type === 'array') {
         return;
       }
-      // Skip foreign key fields
-      if (fieldDef.type === 'foreign_key') {
-        return;
-      }
+      // Keep foreign key fields for edit form (render as select)
 
       const value = entity[fieldName];
       if (fieldDef.type === 'boolean') {
@@ -869,8 +867,25 @@ const EntityDetailPage = () => {
       if (fieldDef.type === 'json' || fieldDef.type === 'object' || fieldDef.type === 'array') {
         return;
       }
-      // Skip foreign key fields
+      // Render foreign key fields as selects
       if (fieldDef.type === 'foreign_key') {
+        const targetEntity = fieldDef.foreignKey;
+        const targetRecords = getAll(targetEntity) || [];
+        const options = targetRecords.map(r => ({
+          value: r.id,
+          label: r.name || r.title || r.displayName || r.username || `${targetEntity} (${r.id})`
+        }));
+        
+        const isRequired = requiredFields.includes(fieldName);
+        fields.push({
+          name: fieldName,
+          label: formatFieldLabel(fieldName),
+          type: 'select',
+          required: isRequired,
+          options,
+          placeholder: `Select ${formatFieldLabel(fieldName)}`,
+          description: fieldDef.description || null,
+        });
         return;
       }
 

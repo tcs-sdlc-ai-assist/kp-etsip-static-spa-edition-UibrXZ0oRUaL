@@ -1107,6 +1107,37 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
     }
     counts.TEST_DATA = testData.length;
 
+    // ---- RELEASES ----
+    const releases = [];
+    const numReleases = Math.max(5, Math.round(24 * scale));
+    const releaseStatuses = ['planned', 'in_progress', 'completed', 'cancelled'];
+    const riskLevels = ['low', 'medium', 'high', 'critical'];
+    for (let i = 0; i < numReleases; i++) {
+      const id = `${ID_PREFIXES.RELEASE}${String(i + 1).padStart(3, '0')}`;
+      const app = applications[i % applications.length];
+      const now = generateDatetime(rng, -rng.nextInt(10, 180));
+      const releaseOffset = rng.nextInt(-30, 180); // planned or past
+      const status = releaseOffset < 0 ? 'completed' : rng.pick(['planned', 'in_progress']);
+      releases.push({
+        id,
+        name: `Release ${app.name} v${rng.nextInt(1, 5)}.${rng.nextInt(0, 9)}.${rng.nextInt(0, 9)}`,
+        version: `${rng.nextInt(1, 5)}.${rng.nextInt(0, 9)}.${rng.nextInt(0, 9)}`,
+        applicationId: app.id,
+        releaseDate: generateDateString(releaseOffset),
+        status,
+        riskLevel: rng.pick(riskLevels),
+        branchName: `release/v${rng.nextInt(1, 5)}.${rng.nextInt(0, 9)}`,
+        commitHash: Array.from({ length: 40 }, () => rng.pick('0123456789abcdef')).join(''),
+        description: `Deployment and release workflow for ${app.name}.`,
+        createdAt: now,
+        updatedAt: now,
+        createdBy: 'system',
+        updatedBy: 'system',
+        version: 1,
+      });
+    }
+    counts.RELEASE = releases.length;
+
     // ---- PERSIST TO LOCALSTORAGE ----
     const storageMap = [
       [STORAGE_KEYS.ROLES, roles],
@@ -1134,6 +1165,7 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
       [STORAGE_KEYS.PDE_CONFIGS, pdeConfigs],
       [STORAGE_KEYS.AUDIT_LOGS, auditLogs],
       [STORAGE_KEYS.TEST_DATA, testData],
+      [STORAGE_KEYS.RELEASES, releases],
     ];
 
     for (const [key, data] of storageMap) {
@@ -1170,6 +1202,7 @@ export const seedDatabase = (seedSize = 'standard', seedValue = 'kp-etsip-defaul
       [ID_PREFIXES.PDE_CONFIG, pdeConfigs.length],
       [ID_PREFIXES.AUDIT_LOG, auditLogs.length],
       [ID_PREFIXES.TEST_DATA, testData.length],
+      [ID_PREFIXES.RELEASE, releases.length],
     ];
 
     for (const [prefix, count] of counterMap) {

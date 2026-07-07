@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { usePersona } from '../contexts/PersonaContext';
-import { create } from '../services/entityRepository';
+import { create, getAll } from '../services/entityRepository';
 import { getEntitySchema, getEnumFields } from '../constants/entitySchemas';
 import { ENTITY_NAMES } from '../constants/constants';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -25,6 +25,7 @@ const ROUTE_TO_ENTITY_TYPE = {
   waivers: 'WAIVER',
   environments: 'ENVIRONMENT',
   integrations: 'INTEGRATION',
+  releases: 'RELEASE',
   evidence: 'EVIDENCE',
   users: 'USER',
   roles: 'ROLE',
@@ -249,8 +250,25 @@ const EntityCreatePage = () => {
         return;
       }
 
-      // Skip foreign key fields for the create form (too complex for a simple form)
+      // Render foreign key fields as selects
       if (fieldDef.type === 'foreign_key') {
+        const targetEntity = fieldDef.foreignKey;
+        const targetRecords = getAll(targetEntity) || [];
+        const options = targetRecords.map(r => ({
+          value: r.id,
+          label: r.name || r.title || r.displayName || r.username || `${targetEntity} (${r.id})`
+        }));
+        
+        const isRequired = requiredFields.includes(fieldName);
+        fields.push({
+          name: fieldName,
+          label: formatFieldLabel(fieldName),
+          type: 'select',
+          required: isRequired,
+          options,
+          placeholder: `Select ${formatFieldLabel(fieldName)}`,
+          description: fieldDef.description || null,
+        });
         return;
       }
 
@@ -284,6 +302,8 @@ const EntityCreatePage = () => {
           defaults[field.name] = false;
         } else if (field.type === 'number') {
           defaults[field.name] = '';
+        } else if (field.type === 'select' && field.options && field.options.length > 0) {
+          defaults[field.name] = field.options[0].value;
         } else {
           defaults[field.name] = '';
         }

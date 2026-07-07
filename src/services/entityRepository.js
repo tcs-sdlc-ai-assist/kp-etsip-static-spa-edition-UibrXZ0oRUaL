@@ -41,6 +41,7 @@ const ENTITY_TYPE_TO_STORAGE_KEY = {
   AUDIT_LOG: STORAGE_KEYS.AUDIT_LOGS,
   USE_CASE: STORAGE_KEYS.USE_CASES,
   TEST_DATA: STORAGE_KEYS.TEST_DATA,
+  RELEASE: STORAGE_KEYS.RELEASES,
 };
 
 /**
@@ -73,6 +74,7 @@ const ENTITY_TYPE_TO_ID_PREFIX = {
   AUDIT_LOG: ID_PREFIXES.AUDIT_LOG,
   USE_CASE: ID_PREFIXES.USE_CASE,
   TEST_DATA: ID_PREFIXES.TEST_DATA,
+  RELEASE: ID_PREFIXES.RELEASE,
 };
 
 /**
@@ -97,6 +99,47 @@ const getAllRecords = (entityType) => {
   if (!storageKey) {
     return [];
   }
+  
+  if (entityType === 'RELEASE') {
+    const data = getItem(storageKey);
+    if (!Array.isArray(data) || data.length === 0) {
+      const apps = getItem(STORAGE_KEYS.APPLICATIONS) || [];
+      const users = getItem(STORAGE_KEYS.USERS) || [];
+      const newReleases = [];
+      const numReleases = 15;
+      for (let i = 0; i < numReleases; i++) {
+        const id = `RL-${String(i + 1).padStart(3, '0')}`;
+        const app = apps[i % apps.length] || { id: 'APP-001', name: 'Demonstrator App' };
+        const user = users[i % users.length] || { id: 'USR-001', displayName: 'QE Manager' };
+        newReleases.push({
+          id,
+          name: `Release ${app.name} v${1 + (i % 3)}.${i % 9}.${i % 5}`,
+          version: `${1 + (i % 3)}.${i % 9}.${i % 5}`,
+          applicationId: app.id,
+          releaseDate: new Date(Date.now() + (i - 5) * 24 * 60 * 60 * 1000 * 5).toISOString().slice(0, 10),
+          status: i < 5 ? 'completed' : (i < 10 ? 'in_progress' : 'planned'),
+          riskLevel: ['low', 'medium', 'high', 'critical'][i % 4],
+          branchName: `release/v${1 + (i % 3)}.${i % 9}`,
+          commitHash: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0',
+          description: `Deployment and release workflow for ${app.name}.`,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: user.id,
+          updatedBy: user.id,
+          version: 1,
+        });
+      }
+      setItem(storageKey, newReleases);
+      try {
+        setItem('kp_etsip_id_counter_RL-', numReleases + 1);
+      } catch {
+        // ignore counter set failure
+      }
+      return newReleases;
+    }
+    return data;
+  }
+
   const data = getItem(storageKey);
   if (!Array.isArray(data)) {
     return [];

@@ -278,12 +278,19 @@ const TestDataPage = () => {
     return testDataSets.filter((d) => d.syntheticIndicator).length;
   }, [testDataSets]);
 
-  const handleInputChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+  const handleInputChange = useCallback((nameOrEvent, valueOrUndefined) => {
+    if (nameOrEvent && nameOrEvent.target) {
+      const { name, value, type, checked } = nameOrEvent.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [nameOrEvent]: valueOrUndefined,
+      }));
+    }
   }, []);
 
   // Form validator
@@ -613,182 +620,181 @@ const TestDataPage = () => {
       </div>
 
       {/* Create Modal */}
-      {createModalOpen && (
-        <Modal
-          title="Provision Synthetic Dataset"
-          onClose={() => setCreateModalOpen(false)}
-          ariaLabel="Provision Synthetic Dataset modal"
-        >
-          <form onSubmit={handleCreateSubmit} className="space-y-4">
+      <Modal
+        isOpen={createModalOpen}
+        title="Provision Synthetic Dataset"
+        onClose={() => setCreateModalOpen(false)}
+        ariaLabel="Provision Synthetic Dataset modal"
+      >
+        <form onSubmit={handleCreateSubmit} className="space-y-4">
+          <FormField
+            id="name"
+            name="name"
+            label="Dataset Name"
+            value={formData.name}
+            onChange={handleInputChange}
+            error={formErrors.name}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="applicationId" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
+                Application *
+              </label>
+              <select
+                id="applicationId"
+                name="applicationId"
+                value={formData.applicationId}
+                onChange={handleInputChange}
+                className="input text-sm"
+                required
+              >
+                <option value="">Select App...</option>
+                {applications.map((app) => (
+                  <option key={app.id} value={app.id}>
+                    {app.name}
+                  </option>
+                ))}
+              </select>
+              {formErrors.applicationId && (
+                <p className="mt-1 text-xs text-red-500">{formErrors.applicationId}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="environmentId" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
+                Environment *
+              </label>
+              <select
+                id="environmentId"
+                name="environmentId"
+                value={formData.environmentId}
+                onChange={handleInputChange}
+                className="input text-sm"
+                required
+              >
+                <option value="">Select Environment...</option>
+                {environments.map((env) => (
+                  <option key={env.id} value={env.id}>
+                    {env.name}
+                  </option>
+                ))}
+              </select>
+              {formErrors.environmentId && (
+                <p className="mt-1 text-xs text-red-500">{formErrors.environmentId}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <FormField
-              id="name"
-              name="name"
-              label="Dataset Name"
-              value={formData.name}
+              id="dataType"
+              name="dataType"
+              label="Data Type Class"
+              placeholder="e.g. Customer PII, Transactions"
+              value={formData.dataType}
               onChange={handleInputChange}
-              error={formErrors.name}
+              error={formErrors.dataType}
               required
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="applicationId" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
-                  Application *
-                </label>
-                <select
-                  id="applicationId"
-                  name="applicationId"
-                  value={formData.applicationId}
-                  onChange={handleInputChange}
-                  className="input text-sm"
-                  required
-                >
-                  <option value="">Select App...</option>
-                  {applications.map((app) => (
-                    <option key={app.id} value={app.id}>
-                      {app.name}
-                    </option>
-                  ))}
-                </select>
-                {formErrors.applicationId && (
-                  <p className="mt-1 text-xs text-red-500">{formErrors.applicationId}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="environmentId" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
-                  Environment *
-                </label>
-                <select
-                  id="environmentId"
-                  name="environmentId"
-                  value={formData.environmentId}
-                  onChange={handleInputChange}
-                  className="input text-sm"
-                  required
-                >
-                  <option value="">Select Environment...</option>
-                  {environments.map((env) => (
-                    <option key={env.id} value={env.id}>
-                      {env.name}
-                    </option>
-                  ))}
-                </select>
-                {formErrors.environmentId && (
-                  <p className="mt-1 text-xs text-red-500">{formErrors.environmentId}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                id="dataType"
-                name="dataType"
-                label="Data Type Class"
-                placeholder="e.g. Customer PII, Transactions"
-                value={formData.dataType}
-                onChange={handleInputChange}
-                error={formErrors.dataType}
-                required
-              />
-
-              <FormField
-                id="sourceSystem"
-                name="sourceSystem"
-                label="Source System"
-                placeholder="e.g. Salesforce, SAP"
-                value={formData.sourceSystem}
-                onChange={handleInputChange}
-                error={formErrors.sourceSystem}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="sensitivityClassification" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
-                  Sensitivity Classification
-                </label>
-                <select
-                  id="sensitivityClassification"
-                  name="sensitivityClassification"
-                  value={formData.sensitivityClassification}
-                  onChange={handleInputChange}
-                  className="input text-sm"
-                >
-                  <option value="Confidential">Confidential</option>
-                  <option value="Restricted">Restricted</option>
-                  <option value="Internal">Internal</option>
-                  <option value="Public">Public</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="maskingStatus" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
-                  Masking Status
-                </label>
-                <select
-                  id="maskingStatus"
-                  name="maskingStatus"
-                  value={formData.maskingStatus}
-                  onChange={handleInputChange}
-                  className="input text-sm"
-                >
-                  <option value="unmasked">Unmasked</option>
-                  <option value="partially_masked">Partially Masked</option>
-                  <option value="fully_masked">Fully Masked</option>
-                  <option value="not_applicable">N/A</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 py-2">
-              <input
-                id="syntheticIndicator"
-                name="syntheticIndicator"
-                type="checkbox"
-                checked={formData.syntheticIndicator}
-                onChange={handleInputChange}
-                className="h-4 w-4 rounded border-neutral-300 text-primary-500"
-              />
-              <label htmlFor="syntheticIndicator" className="text-sm text-neutral-700 dark:text-neutral-300">
-                Generate 100% Synthetic Data (Zero PII Risk)
-              </label>
-            </div>
-
             <FormField
-              id="expirationDate"
-              name="expirationDate"
-              label="Expiration Date"
-              type="date"
-              value={formData.expirationDate}
+              id="sourceSystem"
+              name="sourceSystem"
+              label="Source System"
+              placeholder="e.g. Salesforce, SAP"
+              value={formData.sourceSystem}
               onChange={handleInputChange}
+              error={formErrors.sourceSystem}
+              required
             />
+          </div>
 
-            {formErrors._form && (
-              <p className="text-sm text-red-500">{formErrors._form}</p>
-            )}
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setCreateModalOpen(false)}
-                className="btn-outline px-4 py-2"
-                disabled={createLoading}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="sensitivityClassification" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
+                Sensitivity Classification
+              </label>
+              <select
+                id="sensitivityClassification"
+                name="sensitivityClassification"
+                value={formData.sensitivityClassification}
+                onChange={handleInputChange}
+                className="input text-sm"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn-primary px-4 py-2"
-                disabled={createLoading}
-              >
-                {createLoading ? 'Provisioning...' : 'Provision'}
-              </button>
+                <option value="Confidential">Confidential</option>
+                <option value="Restricted">Restricted</option>
+                <option value="Internal">Internal</option>
+                <option value="Public">Public</option>
+              </select>
             </div>
-          </form>
-        </Modal>
-      )}
+
+            <div>
+              <label htmlFor="maskingStatus" className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">
+                Masking Status
+              </label>
+              <select
+                id="maskingStatus"
+                name="maskingStatus"
+                value={formData.maskingStatus}
+                onChange={handleInputChange}
+                className="input text-sm"
+              >
+                <option value="unmasked">Unmasked</option>
+                <option value="partially_masked">Partially Masked</option>
+                <option value="fully_masked">Fully Masked</option>
+                <option value="not_applicable">N/A</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 py-2">
+            <input
+              id="syntheticIndicator"
+              name="syntheticIndicator"
+              type="checkbox"
+              checked={formData.syntheticIndicator}
+              onChange={handleInputChange}
+              className="h-4 w-4 rounded border-neutral-300 text-primary-500"
+            />
+            <label htmlFor="syntheticIndicator" className="text-sm text-neutral-700 dark:text-neutral-300">
+              Generate 100% Synthetic Data (Zero PII Risk)
+            </label>
+          </div>
+
+          <FormField
+            id="expirationDate"
+            name="expirationDate"
+            label="Expiration Date"
+            type="date"
+            value={formData.expirationDate}
+            onChange={handleInputChange}
+          />
+
+          {formErrors._form && (
+            <p className="text-sm text-red-500">{formErrors._form}</p>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setCreateModalOpen(false)}
+              className="btn-outline px-4 py-2"
+              disabled={createLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary px-4 py-2"
+              disabled={createLoading}
+            >
+              {createLoading ? 'Provisioning...' : 'Provision'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Delete Confirm */}
       <ConfirmDialog

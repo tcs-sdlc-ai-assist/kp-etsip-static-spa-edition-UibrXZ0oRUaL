@@ -116,6 +116,7 @@ const sanitizeStoredData = () => {
     STORAGE_KEYS.AUDIT_LOGS,
     STORAGE_KEYS.USE_CASES,
     STORAGE_KEYS.TEST_DATA,
+    STORAGE_KEYS.RELEASES,
   ];
 
   arrayKeys.forEach((key) => {

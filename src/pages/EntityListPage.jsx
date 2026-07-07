@@ -13,7 +13,7 @@ import Modal from '../components/common/Modal';
 import FormField from '../components/common/FormField';
 import { getEntitySchema, getEnumFields } from '../constants/entitySchemas';
 import { ENTITY_NAMES } from '../constants/constants';
-import { create, remove, getDeleteImpact } from '../services/entityRepository';
+import { create, remove, getDeleteImpact, getAll } from '../services/entityRepository';
 import { getScoreBand } from '../constants/constants';
 
 /**
@@ -32,6 +32,7 @@ const ROUTE_TO_ENTITY_TYPE = {
   waivers: 'WAIVER',
   environments: 'ENVIRONMENT',
   integrations: 'INTEGRATION',
+  releases: 'RELEASE',
   evidence: 'EVIDENCE',
   users: 'USER',
   roles: 'ROLE',
@@ -610,8 +611,24 @@ const buildCreateFormFields = (entityType) => {
       return;
     }
 
-    // Skip foreign key fields for the create form (too complex for a simple modal)
+    // Render foreign key fields as selects
     if (fieldDef.type === 'foreign_key') {
+      const targetEntity = fieldDef.foreignKey;
+      const targetRecords = getAll(targetEntity) || [];
+      const options = targetRecords.map(r => ({
+        value: r.id,
+        label: r.name || r.title || r.displayName || r.username || `${targetEntity} (${r.id})`
+      }));
+      
+      fields.push({
+        name: fieldName,
+        label: fieldName.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()).trim(),
+        type: 'select',
+        required: isRequired,
+        options,
+        placeholder: `Select ${fieldName}`,
+        description: fieldDef.description || null,
+      });
       return;
     }
 
@@ -817,8 +834,8 @@ const EntityListPage = () => {
       createFormFields.forEach((field) => {
         if (field.type === 'checkbox') {
           defaults[field.name] = false;
-        } else if (field.type === 'number') {
-          defaults[field.name] = '';
+        } else if (field.type === 'select' && field.options && field.options.length > 0) {
+          defaults[field.name] = field.options[0].value;
         } else {
           defaults[field.name] = '';
         }
